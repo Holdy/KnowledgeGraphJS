@@ -1,0 +1,30 @@
+{
+  "name": "kgjs",
+  "version": "0.0.1",
+  "description": "Lightweight library for traversing semantic web data.",
+  "main": "KGjs.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Holdy/KnowledgeGraphJS.git"
+  },
+  "keywords": [
+    "dbpedia",
+    "wikidata",
+    "semantic",
+    "web"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "superagent": "3.3.x"
+  },
+  "bugs": {
+    "url": "https://github.com/Holdy/KnowledgeGraphJS/issues"
+  },
+  "homepage": "https://github.com/Holdy/KnowledgeGraphJS#readme"
+}
