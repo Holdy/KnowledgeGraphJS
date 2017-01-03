@@ -97,6 +97,15 @@ function newGraph(accessorList) {
         defineAlias: function(alias, uri) {
             aliases[alias] = uri;
         },
+        add: function(s,p,o) {
+            s.add_int(p,o);
+        },
+        list: function(s,p, callback, isRootLoaded) {
+            s.list_int(p, callback, isRootLoaded);
+        },
+        getOne: function(s, p) {
+            return s.getOne_int(p);
+        },
         ensureResource: function(uriOrAliasedName) {
             var absoluteUri = determineAbsoluteUri(uriOrAliasedName, aliases);
 
@@ -107,7 +116,7 @@ function newGraph(accessorList) {
                 var resourceWrapper = {
                     id: uriOrAliasedName,
                     uri: absoluteUri,
-                    add: function(predicateResourceWrapper, object) {
+                    add_int: function(predicateResourceWrapper, object) {
                         if (data === null) {
                             data = {};
                         }
@@ -122,7 +131,7 @@ function newGraph(accessorList) {
                         // Meta processing.
                         metaProcessing(this, predicateResourceWrapper, object);
                     },
-                    getOne: function(predicateResourceWrapper) {
+                    getOne_int: function(predicateResourceWrapper) {
                         var result = null;
                         if (data) {
                             var list = data[predicateResourceWrapper.id];
@@ -133,7 +142,7 @@ function newGraph(accessorList) {
 
                         return result;
                     },
-                    list: function(predicateResourceWrapper, callback, isRootLoad) {
+                    list_int: function(predicateResourceWrapper, callback, isRootLoad) {
                         var thisResource = this;
                         ensureDataLoaded(this, graphComponents, function(err) {
                             if (err) {
@@ -143,7 +152,7 @@ function newGraph(accessorList) {
                             if (thisResource._sharedRoot && !isRootLoad) {
                                 // use a special algorithm to populate and
                                 // collate results.
-                                performSharedRootList(thisResource, predicateResourceWrapper, graphComponents, function(err, wrappedItems) {
+                                performSharedRootList(graph, thisResource, predicateResourceWrapper, graphComponents, function(err, wrappedItems) {
                                     if (err) {
                                         callback(err);
                                     } else {
@@ -208,8 +217,7 @@ function forEachInArray(array, itemCallback, completeCallback) {
     forEachInArrayImpl(0, array, itemCallback, completeCallback);
 }
 
-
-function performSharedRootList(targetResource, predicateResourceWrapper, graphComponents, callback) {
+function performSharedRootList(graph, targetResource, predicateResourceWrapper, graphComponents, callback) {
     // We move through the shared root list, populating and collating answers as we go.
     // Our list iterate will process items added to the array during processing.
 
@@ -220,7 +228,7 @@ function performSharedRootList(targetResource, predicateResourceWrapper, graphCo
         function resourceCallback(resource, itemCallback) {
             // Loading will force population of this resource.
             // If we find a sameAs link, it will be added to the sharedRoot.list
-            resource.list(predicateResourceWrapper, function(err, wrappedResults) {
+            graph.list(resource, predicateResourceWrapper, function(err, wrappedResults) {
                     if (err) {
                         itemCallback(null); // we don't let error stop process.
                     } else {

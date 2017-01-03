@@ -100,7 +100,7 @@ describe('KGjs', function() {
             dbpediaPopulator.populate(dbpedia_Norwich, tripleProcessor, function(err) {
 
                 // We should now know that the dbPedia url is the same as the wikidata uri
-                dbpedia_Norwich.list(sameAs, function(err, wrappedResults) {
+                graph.list(dbpedia_Norwich, sameAs, function(err, wrappedResults) {
 
                     expect(wrappedResults.length).to.equal(1);
                     expect(wrappedResults[0].value.uri).to.equal('http://www.wikidata.org/entity/Q130191');
@@ -109,7 +109,7 @@ describe('KGjs', function() {
                     wikidataPopulator.populate(wikidata_Norwich, tripleProcessor, function(err) {
 
                         var sisterCityResource =  graph.ensureResource('http://www.wikidata.org/property/P190');
-                        wikidata_Norwich.list(sisterCityResource, function(err, wrappedResults) {
+                        graph.list(wikidata_Norwich, sisterCityResource, function(err, wrappedResults) {
 
                             // Will break if Norwich is twinned again!
                             expect(wrappedResults.length).to.equal(3);
@@ -123,7 +123,7 @@ describe('KGjs', function() {
         });
     });
 
-    describe.only('accessorList', function() {
+    describe('accessorList', function() {
 
         it('should share properties across sameAs relations', function(done) {
 
@@ -139,7 +139,7 @@ describe('KGjs', function() {
             // We should now find the sister cities of Norwich because:
             // dbpedia/Norwich gives us a sameAs reference to wikidata/Norwich
             // wikidata/Norwich has sisterCity values.
-            dbpedia_Norwich.list(twinnedCityRel, function(err, wrappedResults) {
+            freshGraph.list(dbpedia_Norwich, twinnedCityRel, function(err, wrappedResults) {
                 expect(err).to.not.be.ok;
                 expect(wrappedResults).to.be.ok;
 
@@ -153,13 +153,14 @@ describe('KGjs', function() {
         it('should work as a nice clean example', function(done) {
 
             // Setup a graph to hold data. use all accessors (wikidata+dbpedia).
-            var r = KGjs.newGraph(KGjs.allAccessors).ensureResource;
+            var graph = KGjs.newGraph(KGjs.allAccessors);
+            var r = graph.ensureResource;
 
             var twinnedWithRel = r('http://www.wikidata.org/property/P190');
 
             // Lets find out which cities, Norwich-UK is twinned with.
-            r('http://dbpedia.org/resource/Norwich')
-                .list(twinnedWithRel, function(err, wrappedResults) {
+            graph.list(r('http://dbpedia.org/resource/Norwich'),
+                twinnedWithRel, function(err, wrappedResults) {
                     //  We get resources for Novi Sad, Koblenz and Rouen.
                     expect(wrappedResults.length).to.equal(3);
                     done();

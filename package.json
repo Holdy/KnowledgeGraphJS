@@ -1,6 +1,6 @@
 {
   "name": "kgjs",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Lightweight library for traversing semantic web data.",
   "main": "KGjs.js",
   "directories": {
