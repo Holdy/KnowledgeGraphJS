@@ -1,6 +1,7 @@
 "strict on";
 
 var uriOf = require('./lib/rdfUris');
+var fileLoader = require('./lib/io/fileLoader');
 var fetchStatus = require('./lib/fetchStatus');
 
 function ensureDataLoaded (resourceWrapper, graphComponents, callback)  {
@@ -17,7 +18,8 @@ function ensureDataLoaded (resourceWrapper, graphComponents, callback)  {
                    }
                });
         } else {
-            resourceWrapper.fetchStatus = fetchStatus.canBeFetched;
+            resourceWrapper.fetchStatus = fetchStatus.cannotBeFetched;
+            callback(null);
         }
     } else {
         callback(null);
@@ -83,7 +85,6 @@ function processOutgoingResources(wrappedFacts, graphComponents, callback) {
         });
 }
 
-// Should only really call once - because everything can be in the same graph.
 function newGraph(accessorList) {
     var aliases = {};
     var resources = {};
@@ -92,7 +93,6 @@ function newGraph(accessorList) {
         dataProcessor: null,
         accessorList: accessorList};
 
-//    var dataProcessor;
     var graph = {
         defineAlias: function(alias, uri) {
             aliases[alias] = uri;
@@ -117,10 +117,21 @@ function newGraph(accessorList) {
                             rawResults = [];
                             data[predicateResourceWrapper.uri] = rawResults;
                         }
-                        rawResults.push(object);
 
+                        rawResults.push(object);
                         // Meta processing.
                         metaProcessing(this, predicateResourceWrapper, object);
+                    },
+                    getOne: function(predicateResourceWrapper) {
+                        var result = null;
+                        if (data) {
+                            var list = data[predicateResourceWrapper.id];
+                            if (list && list.length > 0) {
+                                result = list[0];
+                            }
+                        }
+
+                        return result;
                     },
                     list: function(predicateResourceWrapper, callback, isRootLoad) {
                         var thisResource = this;
@@ -164,10 +175,16 @@ function newGraph(accessorList) {
                 resources[absoluteUri] = resourceWrapper;
             }
             return resourceWrapper;
+        },
+        loadFile: function(fileName, callback) {
+            fileLoader.loadFile(this, fileName, callback);
+        },
+        forEachResource: function(resourceCallback, completeCallback) {
+            var values = Object.keys(resources).map(function(key) { return resources[key]});
+            forEachInArray(values, resourceCallback, completeCallback);
         }
     };
 
-//    dataProcessor = require('./lib/tripleProcessor').newTripleProcessor(graph);
     graphComponents.dataProcessor = require('./lib/tripleProcessor').newTripleProcessor(graph);
 
     return graph;
@@ -229,3 +246,5 @@ function performSharedRootList(targetResource, predicateResourceWrapper, graphCo
 
 module.exports.newGraph = newGraph;
 module.exports.allAccessors = require('./lib/accessors/dataAccessorList').all;
+module.exports.newAccessorList = require('./lib/accessors/dataAccessorList').newList;
+module.exports.uriFor = require('./lib/rdfUris');
