@@ -156,11 +156,11 @@ describe('KGjs', function() {
             var graph = KGjs.newGraph(KGjs.allAccessors);
             var r = graph.ensureResource;
 
-            var twinnedWithRel = r('http://www.wikidata.org/property/P190');
-
             // Lets find out which cities, Norwich-UK is twinned with.
-            graph.list(r('http://dbpedia.org/resource/Norwich'),
-                twinnedWithRel, function(err, wrappedResults) {
+            graph.list(
+                r('http://dbpedia.org/resource/Norwich'),
+                r('http://www.wikidata.org/property/P190'), // TwinnedWith.
+                function(err, wrappedResults) {
                     //  We get resources for Novi Sad, Koblenz and Rouen.
                     expect(wrappedResults.length).to.equal(3);
                     done();

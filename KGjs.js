@@ -256,3 +256,4 @@ module.exports.newGraph = newGraph;
 module.exports.allAccessors = require('./lib/accessors/dataAccessorList').all;
 module.exports.newAccessorList = require('./lib/accessors/dataAccessorList').newList;
 module.exports.uriFor = require('./lib/rdfUris');
+module.exports.semanticQuery = require('./lib/io/semanticQuery');
